@@ -8,34 +8,44 @@ import urllib
 
 class YelpTwitterBot(object):
 
-	def __init__(self, submit_tweet_function=None):
-		if submit_tweet_function is None:
-			self._submit_tweet = self._default_submit_tweet
-		else:
-			self._submit_tweet = submit_tweet_function
-
-		self._yelp_tweet_responder = self._construct_yelp_tweet_responder()
-
+	def __init__(self, tweet_handler=None):
 		twitter_client_factory = TwitterClientFactory()
 		self._twitter_stream_client = twitter_client_factory.create_twitter_stream_client()
 
+		if tweet_handler is None:
+			self._tweet_handler = TweetPrinter
+		else:
+			self._tweet_handler = tweet_handler
 
-	def _construct_yelp_tweet_responder(self):
+	def _get_tweet_with_location(self, tweet):
 		location_extractor = LocationExtractor()
-		return YelpTweetResponder(
-			self._submit_tweet,
-			location_extractor.find_location_from_tweet
-		)
-
-	def _default_submit_tweet(self, *args):
-		print '**********', args
+		location = location_extractor.find_location_from_tweet(tweet)
+		return {
+			'location': location,
+			'tweet': tweet
+		}
 
 	def run(self):
 		tweets = self._twitter_stream_client.statuses.filter(
 			track='eat where, food where, hungry, starving"'
 		)
 		for tweet in tweets:
-			self._yelp_tweet_responder.handle_tweet(tweet)
+			tweet_with_location = self._get_tweet_with_location(tweet)
+			self._tweet_handler.handle_tweet(tweet_with_location)
+
+
+class TweetPrinter(object):
+
+	def __init__(self):
+		return
+
+	def handle_tweet(self, tweet_with_location):
+		if tweet_with_location['location']:
+			print '******* Has Location *******'
+		else:
+			print 'xxxxxxx Missing Location xxxxxxx'
+		print tweet_with_location
+
 
 
 class TwitterClientFactory(object):
@@ -57,30 +67,6 @@ class TwitterClientFactory(object):
 		return twitter.TwitterStream(
 			auth=self._get_auth()
 		)
-
-
-class YelpTweetResponder(object):
-
-	def __init__(self, submit_tweet_function, get_location_function):
-		self._submit_tweet = submit_tweet_function
-		self._get_location = get_location_function
-
-	def handle_tweet(self, tweet):
-		location = self._get_location(tweet)
-		if location:
-			tweet_response = self._get_tweet_response(location)
-			self._submit_tweet(
-				tweet['user']['screen_name'],
-				tweet_response
-			)
-
-	def _get_tweet_response(self, location):
-		return 'We know just the place: %s' % self._get_yelp_url(location)
-
-	def _get_yelp_url(self, location):
-		escaped_location = urllib.quote_plus(location)
-		yelp_url = 'http://www.yelp.com/search?find_desc=restaurants&find_loc=%s' % escaped_location
-		return yelp_url
 
 
 class LocationExtractor(object):

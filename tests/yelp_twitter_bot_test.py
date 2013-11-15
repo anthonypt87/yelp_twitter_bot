@@ -1,3 +1,4 @@
+import contextlib
 import mock
 import unittest
 
@@ -18,19 +19,36 @@ def make_tweet(**extra_params):
 	return tweet
 
 
-class YelpTweetResponderTest(unittest.TestCase):
+class YelpTwitterBotTest(unittest.TestCase):
 
-	def test_yelp_tweet_responder_responds_to_tweet_correctly(self):
+	def test_that_tweets_are_passed_with_location_to_tweet_handler(self):
+		tweet_handler = mock.Mock()
+
 		tweet = make_tweet()
-		submit_tweet_function = mock.Mock()
-		location_extractor = mock.Mock(return_value='San Francisco')
-		tweet_responder = yelp_twitter_bot.YelpTweetResponder(
-			submit_tweet_function,
-			location_extractor
+
+		mock_client = mock.Mock()
+		mock_client.statuses.filter.return_value = [tweet]
+		with contextlib.nested(
+			mock.patch.object(
+				yelp_twitter_bot.TwitterClientFactory,
+				'create_twitter_stream_client',
+				return_value=mock_client
+			),
+			mock.patch.object(
+				yelp_twitter_bot.LocationExtractor,
+				'find_location_from_tweet',
+				return_value=None
+			)
+		):
+			bot = yelp_twitter_bot.YelpTwitterBot(tweet_handler)
+			bot.run()
+
+		tweet_handler.handle_tweet.assert_called_once_with(
+			{
+				'location': None,
+				'tweet': tweet,
+			}
 		)
-		tweet_responder.handle_tweet(tweet)
-		mock_url = 'http://www.yelp.com/search?find_desc=restaurants&find_loc=San+Francisco'
-		submit_tweet_function.assert_called_once_with(tweet['user']['screen_name'], 'We know just the place: %s' % mock_url)
 
 
 class LocationExtractorTest(unittest.TestCase):
