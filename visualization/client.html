@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Yelp Twitter Bot</title>
+    <meta charset="utf-8" />
+    <script src="http://code.jquery.com/jquery.min.js"></script>
+    <script>
+      $(document).ready(function () {
+
+				var updateData = function(newTextToAdd) {
+					var data = $("#data");
+					data.append("<p>" + newTextToAdd + "</p>");
+				}
+				updateData('3');
+				updateData('4');
+ 
+				var ws = new WebSocket("ws://localhost:8888/ws");
+
+				ws.onmessage = function(evt) {
+					updateData(evt.data);
+				};
+				ws.onclose = function(evt) {};
+				ws.onopen = function(evt) {};
+ 
+      });
+    </script>
+  </head>
+ 
+  <body>
+    <h1>WebSockets Hello World</h1>
+    <div id="data">
+    </div>
+  </body>
+</html>

@@ -8,7 +8,12 @@ import urllib
 
 class YelpTwitterBot(object):
 
-	def __init__(self):
+	def __init__(self, submit_tweet_function=None):
+		if submit_tweet_function is None:
+			self._submit_tweet = self._default_submit_tweet
+		else:
+			self._submit_tweet = submit_tweet_function
+
 		self._yelp_tweet_responder = self._construct_yelp_tweet_responder()
 
 		twitter_client_factory = TwitterClientFactory()
@@ -17,19 +22,19 @@ class YelpTwitterBot(object):
 
 	def _construct_yelp_tweet_responder(self):
 		location_extractor = LocationExtractor()
-		submit_tweet_function = self._submit_tweet_function
 		return YelpTweetResponder(
-			submit_tweet_function,
+			self._submit_tweet,
 			location_extractor.find_location_from_tweet
 		)
 
-	def _submit_tweet_function(self, *args):
+	def _default_submit_tweet(self, *args):
 		print '**********', args
 
 	def run(self):
-		tweets = self._twitter_stream_client.statuses.filter(track='eat where, food where, hungry, starving"')
+		tweets = self._twitter_stream_client.statuses.filter(
+			track='eat where, food where, hungry, starving"'
+		)
 		for tweet in tweets:
-			print tweet
 			self._yelp_tweet_responder.handle_tweet(tweet)
 
 
@@ -124,6 +129,7 @@ class LocationExtractor(object):
 			placedetail = placedetails
 
 		return placedetail['place']['name']
+
 
 if __name__ == '__main__':
 	 YelpTwitterBot().run()
