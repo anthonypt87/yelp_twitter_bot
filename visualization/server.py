@@ -6,10 +6,20 @@ import tornado.websocket
 import yelp_twitter_bot
 
 
+class MessageWriterTweetHandler(object):
+
+	def __init__(self, submit_function):
+		self._submit = submit_function
+
+	def handle_tweet(self, tweet):
+		return self._submit(str(tweet))
+
+
 class YelpTwitterBotWSHandler(tornado.websocket.WebSocketHandler):
+
 	def open(self):
 		bot = yelp_twitter_bot.YelpTwitterBot(
-			lambda *args: self.write_message(str(args))
+			tweet_handler=MessageWriterTweetHandler(self.write_message)
 		)
 		bot.run()
 
