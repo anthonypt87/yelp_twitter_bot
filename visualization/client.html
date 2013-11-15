@@ -4,22 +4,12 @@
     <title>Yelp Twitter Bot</title>
     <meta charset="utf-8" />
     <script src="http://code.jquery.com/jquery.min.js"></script>
+    <script src="client.js"></script>
     <script>
       $(document).ready(function () {
-
-				var updateData = function(newTextToAdd) {
-					var data = $("#data");
-					data.append("<p>" + newTextToAdd + "</p>");
-				}
- 
-				var ws = new WebSocket("ws://localhost:8888/ws");
-
-				ws.onmessage = function(evt) {
-					updateData(evt.data);
-				};
-				ws.onclose = function(evt) {};
-				ws.onopen = function(evt) {};
- 
+				var wrapper = $("#data");
+				clientSetupper = new clientSetup(wrapper);
+				clientSetupper.setupWebSockets();
       });
     </script>
   </head>
