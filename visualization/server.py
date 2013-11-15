@@ -1,3 +1,4 @@
+import json
 import tornado.httpserver
 import tornado.ioloop
 import tornado.web
@@ -12,7 +13,8 @@ class MessageWriterTweetHandler(object):
 		self._submit = submit_function
 
 	def handle_tweet(self, tweet):
-		return self._submit(str(tweet))
+		print tweet
+		return self._submit(json.dumps(tweet))
 
 
 class YelpTwitterBotWSHandler(tornado.websocket.WebSocketHandler):

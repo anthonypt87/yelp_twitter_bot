@@ -1,4 +1,5 @@
 import mock
+import json
 import unittest
 
 from visualization import server
@@ -11,9 +12,9 @@ class MessageWriterTweetHandlerTest(unittest.TestCase):
 		handler = server.MessageWriterTweetHandler(
 			mock_submit_function
 		)
-		tweet = 'tweet'
+		tweet = {'tweet': None}
 		handler.handle_tweet(tweet)
-		mock_submit_function.assert_called_once_with('tweet')
+		mock_submit_function.assert_called_once_with(json.dumps(tweet))
 
 
 if __name__ == '__main__':

@@ -27,7 +27,7 @@ class YelpTwitterBot(object):
 
 	def run(self):
 		tweets = self._twitter_stream_client.statuses.filter(
-			track='eat where, food where, hungry, starving"'
+			track='eat where, food where, hungry, starving, where restaurants"'
 		)
 		for tweet in tweets:
 			tweet_with_location = self._get_tweet_with_location(tweet)
