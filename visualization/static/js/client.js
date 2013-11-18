@@ -18,20 +18,19 @@ clientSetup.prototype.setupWebSockets = function(){
 			locationFromTweet = 'N/A';
 		}
 
-		var extractedLocation = tweet['location'] || 'N/A'
+		var extractedLocation = tweetWithLocation['location'] || 'N/A'
 
-		var tweetElementToAdd = $("<div class='tweet'>");
+		var tweetElementToAdd = tweetWithLocation['location'] ? $("<div class='tweet-highlight'>") : $("<div class='tweet'>");
 
 		var profileImageUrl = tweet['user']['profile_image_url']
 		if (profileImageUrl) {
-			tweetElementToAdd.append('<img class="twitter_photo" src="' + profileImageUrl + '">');
+			tweetElementToAdd.append('<img class="twitter-photo img-rounded" src="' + profileImageUrl + '">');
 		}
-		
 
-		var tweetInfo = $("<div class='tweet_info'>");
-		tweetInfo.append("<h2>New Tweet</h2>");
-		var tweetInfo = $("<ul>");
-		tweetInfo.append("<li> User: " + tweet["user"]["screen_name"] + "</li>");
+		var tweetInfoWrapper = $("<div class='tweet-info-wrapper'>");
+		var tweetInfo = $("<ul class='tweet-info'>");
+		var username = tweet["user"]["screen_name"]
+		tweetInfo.append("<li> User: " + username + "</li>");
 		tweetInfo.append("<li> Text: " + tweet["text"] + "</li>");
 		tweetInfo.append(
 			"<li> Location from Tweet: " + locationFromTweet+ "</li>"
@@ -40,8 +39,22 @@ clientSetup.prototype.setupWebSockets = function(){
 			"<li>Extracted Location: " + extractedLocation + "</li>"
 		);
 
-		tweetElementToAdd.append(tweetInfo);
-		that.wrapper.append(tweetElementToAdd);
+		if (tweetWithLocation['yelp_url']) {
+			tweetInfo.append(
+				"<li>Let's Tweet!: @" + username + ' We know just the place: ' + tweetWithLocation['yelp_url'] + "</li>"
+			);
+		}
+		tweetInfoWrapper.append(tweetInfo);
+		tweetElementToAdd.append(tweetInfoWrapper);
+
+		while ($(".tweet").length >= 7) {
+			var lastChild = $(".tweet:last-child")
+			lastChild.fadeOut('slow', function() {
+				lastChild.remove()
+			});
+			sleep(100);
+		}
+		that.wrapper.prepend(tweetElementToAdd);
 	}
 
 	// TODO: pass this in later

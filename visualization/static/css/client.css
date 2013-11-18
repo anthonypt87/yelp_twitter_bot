@@ -1,2 +1,28 @@
-img#twitter_photo {
+div.tweet {
+	height: 135px;
+	margin: 20px
+}
+ul.tweet-info {
+	padding: 25px;
+	color: #cdbfe3
+}
+h1#heading {
+	text-align: center
+}
+img.twitter-photo {
+	margin: 31px;
+	float: left;
+	height: 50%
+}
+div.tweet {
+	border-radius: 20px;
+	background-color: #463265
+}
+div.tweet-highlight {
+	border-radius: 20px;
+	background-color: #e28bc5
+}
+body{
+	color: #ffffff;
+	background-color: #170B24
 }

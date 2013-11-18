@@ -47,6 +47,7 @@ class YelpTwitterBotTest(unittest.TestCase):
 			{
 				'location': None,
 				'tweet': tweet,
+				'yelp_url': None,
 			}
 		)
 

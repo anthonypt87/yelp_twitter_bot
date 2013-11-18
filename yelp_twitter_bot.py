@@ -22,8 +22,16 @@ class YelpTwitterBot(object):
 		location = location_extractor.find_location_from_tweet(tweet)
 		return {
 			'location': location,
-			'tweet': tweet
+			'tweet': tweet,
+			'yelp_url': self._get_yelp_url(location)
 		}
+
+	def _get_yelp_url(self, location):
+		if location:
+			encoded_location = urllib.quote_plus(location)
+			yelp_url = 'http://www.yelp.com/search?find_desc=restaurants&find_loc=%s' % encoded_location
+			return yelp_url
+
 
 	def run(self):
 		tweets = self._twitter_stream_client.statuses.filter(
